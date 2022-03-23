@@ -1,0 +1,44 @@
+#!/bin/bash
+
+######
+## Download URLs passed as argument (default to /tmp/playlist) into current folder
+##  with youtube-dl
+######
+
+
+
+######
+V_YTDL=$(which youtube-dl)
+V_DEFAULTFORMAT=251
+V_FALLBACKFORMAT=140
+
+######
+#https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux#5947802
+RED='\e[0;31m'
+GREEN='\e[0;32m'
+BLUE='\e[0;34m'
+YELLOW='\e[1;33m'
+NC='\e[0m' # No Color
+
+######
+if [[ ! ${V_YTDL:0} ]] ; then
+  echo -e "${RED}youtube-dl not found in \$PATH. Exiting....$ {NC}"
+  exit 1
+fi
+##
+if [[ ${1:0} ]] ; then
+  T_SOURCE=$1
+else
+  T_SOURCE="/tmp/playlist"
+fi
+##
+
+
+for line in $(cat ${T_SOURCE} | grep .)
+do
+  ${V_YTDL} -f ${V_DEFAULTFORMAT} "${line}"
+  if [[ $? -ne 0 ]]; then
+    echo -e "${YELLOW}Format ${V_DEFAULTFORMAT} not avaiable. Trying ${V_FALLBACKFORMAT}${NC}"
+    ${V_YTDL} -f ${V_FALLBACKFORMAT} "${line}"
+  fi
+done
